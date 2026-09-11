@@ -1,0 +1,13 @@
+name: tree
+version: 0.1.0
+synopsis: Phylogenetic trees as a recursive sum type, parsed and printed in C++
+description: >
+  A rooted tree is `Leaf l | Node n [RootedTree n e l]`. C++ owns the Newick
+  parser and printer against its own template for that type; morloc owns the
+  two shape statistics, written as recursive functions over the constructors
+  that work for any labelling.
+category: tutorial
+license: MIT
+author: "Zebulun Arendsee"
+maintainer: "z@morloc.io"
+dependencies: []

@@ -1,0 +1,12 @@
+{"Node":[{"name":"hominidae","branch":0},[{"Node":[{"name":"homininae","branch":0.25},[{"Node":[{"name":"hominini","branch":0.2},[{"Leaf":[{"name":"Homo_sapiens","branch":0.1}]},{"Leaf":[{"name":"Pan_troglodytes","branch":0.12}]}]]},{"Leaf":[{"name":"Gorilla_gorilla","branch":0.3}]}]]},{"Leaf":[{"name":"Pongo_abelii","branch":0.5}]}]]}
+4
+3
+(((Homo_sapiens:0.1,Pan_troglodytes:0.12)hominini:0.2,Gorilla_gorilla:0.3)homininae:0.25,Pongo_abelii:0.5)hominidae:0;
+{"Node":[{"name":"","branch":null},[{"Leaf":[{"name":"A","branch":null}]},{"Node":[{"name":"","branch":null},[{"Leaf":[{"name":"B","branch":null}]},{"Leaf":[{"name":"C","branch":null}]}]]}]]}
+3
+2
+(A,(B,C));
+'one taxon':1.5;
+1
+0
+OK

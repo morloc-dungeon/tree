@@ -1,0 +1,69 @@
+--' Phylogenetic trees as a sum type
+--'
+--' A rooted tree is either a leaf or a node with children. Each node
+--' carries the name and branch length that Newick writes next to it.
+--' The tree is parsed and printed in C++; the two shape statistics are
+--' recursive morloc functions over the constructors.
+module main (read, write, leaves, depth)
+
+import root-cpp
+
+--' A rooted tree with node labels `n`, edge labels `e` and leaf labels `l`
+--\ Neither constructor stores an `e`; the parameter is in the signature so
+--\ that a labelling which puts its data on edges can share the type.
+data RootedTree n e l = Leaf l | Node n [RootedTree n e l]
+
+--' What Newick writes beside a node: its name and, when given, the
+--' length of the branch above it
+record Label where
+  name :: Str
+  branch :: ?Real
+
+--' A phylogeny as Newick describes it
+type Phylo = RootedTree Label Real Label
+
+--' Path to a Newick file
+--' @check.path r
+type NewickIn = Str
+
+--' Path to write a Newick file to
+--' @check.path w
+type NewickOut = Str
+
+-- The C++ pool uses the template declared in newick.hpp rather than a
+-- generated type, so the parser there can build and match on it.
+data Cpp => (RootedTree n e l) = "RootedTree<$1,$2,$3>" n e l
+record Cpp => Label = "Label"
+
+source Cpp from "newick.hpp"
+  ( "read_newick" as read
+  , "write_newick" as write
+  )
+
+--' Parse a Newick file into a tree
+read :: NewickIn -> <IO> Phylo
+
+--' Write a tree to a file in Newick format
+write :: NewickOut -> Phylo -> <IO> ()
+
+-- Both statistics are polymorphic in every label: they look only at the
+-- shape, and are realized in the C++ pool with no C++ written for them.
+countLeaves :: RootedTree n e l -> Int
+countLeaves | (Leaf _) = 1
+            | (Node _ kids) = sum (map countLeaves kids)
+
+maxDepth :: RootedTree n e l -> Int
+maxDepth | (Leaf _) = 0
+         | (Node _ kids) = 1 + fold max 0 (map maxDepth kids)
+
+--' Count the leaves of a Newick tree
+leaves :: NewickIn -> <IO> Int
+leaves f = do
+  t <- read f
+  countLeaves t
+
+--' Longest root-to-leaf path in a Newick tree, counted in edges
+depth :: NewickIn -> <IO> Int
+depth f = do
+  t <- read f
+  maxDepth t
