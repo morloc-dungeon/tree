@@ -4,7 +4,7 @@
 --' carries the name and branch length that Newick writes next to it.
 --' The tree is parsed and printed in C++; the two shape statistics are
 --' recursive morloc functions over the constructors.
-module main (read, write, leaves, depth)
+module demo-tree (read, write, leaves, depth)
 
 import root-cpp
 
