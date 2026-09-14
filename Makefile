@@ -9,7 +9,7 @@
 # `test` depends on `build`, so `make test` builds and checks in one step.
 
 EXE := tree
-SRC := src/main.loc
+SRC := main.loc
 
 .PHONY: build test clean
 
@@ -36,4 +36,4 @@ test: build
 	diff -u test/exp.txt test/obs.txt
 
 clean:
-	rm -rf $(EXE) $(EXE)-build test/obs.txt test/copy.nwk
+	rm -rf $(EXE) *-build test/obs.txt test/copy.nwk

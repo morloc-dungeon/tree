@@ -35,7 +35,7 @@ type NewickOut = Str
 data Cpp => (RootedTree n e l) = "RootedTree<$1,$2,$3>" n e l
 record Cpp => Label = "Label"
 
-source Cpp from "newick.hpp"
+source Cpp from "src/newick.hpp"
   ( "read_newick" as read
   , "write_newick" as write
   )
