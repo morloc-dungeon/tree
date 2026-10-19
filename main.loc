@@ -1,26 +1,28 @@
 --' Phylogenetic trees as a sum type
 --'
---' A rooted tree is either a leaf or a node with children. Each node
---' carries the name and branch length that Newick writes next to it.
---' The tree is parsed and printed in C++; the two shape statistics are
---' recursive morloc functions over the constructors.
-module demo-tree (read, write, leaves, depth)
+--' A rooted tree is either a leaf or a node with children, and every
+--' child is reached through an edge that carries its own label -- which
+--' for a phylogeny is the branch length. The tree is parsed and printed
+--' in C++; the two shape statistics are recursive morloc functions over
+--' the constructors.
+module demo-tree (read, write, copy, leaves, depth)
 
 import root-cpp
 
---' A rooted tree with node labels `n`, edge labels `e` and leaf labels `l`
---\ Neither constructor stores an `e`; the parameter is in the signature so
---\ that a labelling which puts its data on edges can share the type.
-data RootedTree n e l = Leaf l | Node n [RootedTree n e l]
+--' A Rooted tree
+--'
+--' A node holds each child PAIRED with the edge leading to it, which is
+--' where a phylogeny keeps its branch lengths: a length belongs to the
+--' branch above a node, not to the node. The root is reached by no edge
+--' and so has no length of its own.
+data RootedTree n e l = Leaf l | Node n [(e, RootedTree n e l)]
 
---' What Newick writes beside a node: its name and, when given, the
---' length of the branch above it
-record Label where
-  name :: Str
-  branch :: ?Real
+--' The length of a branch, absent in a tree that records only topology
+type Length = ?Real
 
---' A phylogeny as Newick describes it
-type Phylo = RootedTree Label Real Label
+--' A phylogeny as Newick describes it: names on the tips and on the
+--' internal nodes, lengths on the branches
+type Phylo = RootedTree Str Length Str
 
 --' Path to a Newick file
 --' @check.path r
@@ -33,7 +35,6 @@ type NewickOut = Str
 -- The C++ pool uses the template declared in newick.hpp rather than a
 -- generated type, so the parser there can build and match on it.
 data Cpp => (RootedTree n e l) = "RootedTree<$1,$2,$3>" n e l
-record Cpp => Label = "Label"
 
 source Cpp from "src/newick.hpp"
   ( "read_newick" as read
@@ -48,13 +49,20 @@ write :: NewickOut -> Phylo -> <IO> ()
 
 -- Both statistics are polymorphic in every label: they look only at the
 -- shape, and are realized in the C++ pool with no C++ written for them.
+-- `.1` takes the subtree out of the (edge, subtree) pair.
 countLeaves :: RootedTree n e l -> Int
 countLeaves | (Leaf _) = 1
-            | (Node _ kids) = sum (map countLeaves kids)
+            | (Node _ kids) = sum (map (countLeaves . .1) kids)
 
 maxDepth :: RootedTree n e l -> Int
 maxDepth | (Leaf _) = 0
-         | (Node _ kids) = 1 + fold max 0 (map maxDepth kids)
+         | (Node _ kids) = 1 + fold max 0 (map (maxDepth . .1) kids)
+
+--' Read a Newick file and write it back out, normalized
+copy :: NewickIn -> NewickOut -> <IO> ()
+copy f g = do
+  t <- read f
+  write g t
 
 --' Count the leaves of a Newick tree
 leaves :: NewickIn -> <IO> Int

@@ -21,17 +21,19 @@ test: build
 	./$(EXE) read test/primates.nwk >> test/obs.txt
 	./$(EXE) leaves test/primates.nwk >> test/obs.txt
 	./$(EXE) depth test/primates.nwk >> test/obs.txt
-	./$(EXE) write test/copy.nwk "$$(./$(EXE) read test/primates.nwk)"
+	./$(EXE) copy test/primates.nwk test/copy.nwk
 	cat test/copy.nwk >> test/obs.txt
 	./$(EXE) read test/bare.nwk >> test/obs.txt
 	./$(EXE) leaves test/bare.nwk >> test/obs.txt
 	./$(EXE) depth test/bare.nwk >> test/obs.txt
 	./$(EXE) write test/copy.nwk "$$(./$(EXE) read test/bare.nwk)"
 	cat test/copy.nwk >> test/obs.txt
-	./$(EXE) write test/copy.nwk '{"Leaf":[{"name":"one taxon","branch":1.5}]}'
+	./$(EXE) write test/copy.nwk '{"Leaf":["one taxon"]}'
 	cat test/copy.nwk >> test/obs.txt
 	./$(EXE) leaves test/copy.nwk >> test/obs.txt
 	./$(EXE) depth test/copy.nwk >> test/obs.txt
+	./$(EXE) copy test/rooted.nwk test/copy.nwk
+	cat test/copy.nwk >> test/obs.txt
 	if ./$(EXE) leaves test/unclosed.nwk >> test/obs.txt 2>/dev/null; then echo UNEXPECTED >> test/obs.txt; else echo OK >> test/obs.txt; fi
 	diff -u test/exp.txt test/obs.txt
 
