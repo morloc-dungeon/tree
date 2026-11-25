@@ -32,9 +32,6 @@ type NewickIn = Str
 --' @check.path w
 type NewickOut = Str
 
--- The C++ pool uses the template declared in newick.hpp rather than a
--- generated type, so the parser there can build and match on it.
-data Cpp => (RootedTree n e l) = "RootedTree<$1,$2,$3>" n e l
 
 source Cpp from "src/newick.hpp"
   ( "read_newick" as read

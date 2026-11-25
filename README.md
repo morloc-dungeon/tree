@@ -26,16 +26,15 @@ a file has nowhere to go and is dropped.
 
 Three things happen at the boundary between morloc and C++:
 
-- **C++ owns the type's native form.** `data Cpp => (RootedTree n e l) =
-  "RootedTree<$1,$2,$3>" n e l` says the C++ pool should use the template
-  declared in `src/newick.hpp` rather than a compiler-generated one. The
-  convention is that the wrapper struct holds a `std::variant` of
-  `std::shared_ptr<const T>`, one per constructor, named `RootedTree_Leaf` and
-  `RootedTree_Node`, with fields `f0`, `f1`, ... in declaration order. A
-  morloc tuple is a `std::tuple`, so the node's child list is a
-  `std::vector<std::tuple<E, RootedTree<N, E, L>>>`. Because the C++ side
-  declares the type itself, the Newick parser and printer can match on it
-  directly.
+- **morloc generates the type's native form.** With no C++ line for it, the
+  compiler writes `RootedTree` as a C++ template in the header
+  `mlc/types/_local/demo_tree.hpp`, which `src/newick.hpp` includes. The
+  wrapper struct holds a `std::variant` of `std::shared_ptr<const T>`, one per
+  constructor, named `RootedTree_Leaf` and `RootedTree_Node`, with fields
+  `f0`, `f1`, ... in declaration order. A morloc tuple is a `std::tuple`, so
+  the node's child list is a `std::vector<std::tuple<E, RootedTree<N, E, L>>>`.
+  `morloc types main.loc -o DIR` writes the same header for use outside
+  morloc.
 
 - **C++ does the parsing and printing.** `read_newick` parses the text
   (nested parentheses, quoted labels, optional branch lengths) and
@@ -72,7 +71,7 @@ tree/
   Makefile         # build / test / clean
   main.loc         # the type, the CLI, and the two recursive functions
   src/
-    newick.hpp     # the C++ template for the type, and the Newick reader/writer
+    newick.hpp     # the Newick reader/writer over the generated type
   test/
     primates.nwk   # a small labelled tree with branch lengths
     bare.nwk       # a tree with neither internal labels nor branch lengths
